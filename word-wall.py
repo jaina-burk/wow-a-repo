@@ -6,11 +6,13 @@ import pickle
 
 ### Definitions ###
 
+# Displays title bar
 def titlebar():
     print('**************************************')
     print('***********   Word Bank   ************')
     print('**************************************')
 
+# Main menu display
 def menu():
     print('\nMain Menu. Select an option below:')
     print('\nDisplay/modify known words [1]')
@@ -18,6 +20,7 @@ def menu():
     print('\nTake a quiz! [3]')
     print('\nQuit [q]')
 
+# Shows all the words stored in words dictionary
 def display_words():
     done = ' '
     while done != 'q':
@@ -30,6 +33,7 @@ def display_words():
         if done == '1':
             modify_word()
 
+# Allows users to modify keys, values, or delete words
 def modify_word():
     modify = ' '
     modify_select = ' '
@@ -67,12 +71,14 @@ def modify_word():
             sleep(2)
             modify = 'q'
 
+# Shows all keys in words dictionary
 def quizwords():
     allwords = ' '
-    for word in words:
+    for word in sorted(words):
         allwords += word + ' '
     print('\nAll words: %s' % allwords)
 
+# function for quizzing user on definitions by showing values
 def quiz():
     selection = ' '
     while selection != 'q':
@@ -87,6 +93,7 @@ def quiz():
         print('\nQuit [q]')
         selection = input('\nEnter Selection: ')
         if selection == '2':
+            # Setting this to 1 will always display all known keys
             include_words = '1'
         while selection != 'q':
             for word, definition in words.items():
@@ -113,10 +120,7 @@ def quiz():
             sleep(2)
             selection = 'q'
 
-
-
-
-
+# Allows adding words to words dictionary
 def input_word():
     os.system('cls')
     titlebar()
@@ -141,13 +145,13 @@ def input_word():
 
 ### Main Loop ###
 
+# Loads stored words from local wordwall.pickle file.
 try:
     words = pickle.load(open('wordwall.pickle','rb'))
 except:
     words = {}
 
 selection = ' '
-new_word = ' '
 
 print('\nWelcome to the Word Bank app!\n')
 while selection != 'q':
@@ -163,6 +167,7 @@ while selection != 'q':
         quiz()
 
 
+# Attempts to save words dictionary to wordwall.pickle file
 try:
     file_object = open('wordwall.pickle', 'wb')
     pickle.dump(words, file_object)
