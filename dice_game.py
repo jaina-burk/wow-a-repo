@@ -18,14 +18,19 @@ def gameheader():
     os.system('cls')
     print("****************************************************")
     print(" Coins:%s                            Round:%s" % (coins, round_number))
-    print("                                     Multiplier: %s" % multiplier)
+    print("                                     Multiplier: x%s" % multiplier)
     print(" Dice Sides: %s " % power_ups["Dice Sides"])
+    print(" Total Dice rolled: %s" % power_ups["Number of dice"])
     print(" Chance to multiply roll: %s " % power_ups["Chance to multiply"])
     print("****************************************************")
 
 def calculate_roll():
     # Calculate's the base roll, returns value
-    result = random.randint(1,power_ups["Dice Sides"])
+    result = 0
+    total_dice = range(0,power_ups["Number of dice"])
+    for dice in total_dice:
+        roll = random.randint(1,power_ups["Dice Sides"])
+        result = roll + result
     return result
 
 def roll():
@@ -56,12 +61,12 @@ def next_round(coins, round_number):
             sleep(2)
         else:
             coins = coins - coins_bet
-        if coins < 0:
-            print("Can't go below 0!")
-            sleep(2)
-            coins = coins + coins_bet
-        else:
-            begin = 1
+            if coins < 0:
+                print("Can't go below 0!")
+                sleep(2)
+                coins = coins + coins_bet
+            else:
+                begin = 1
     if begin == 1:
         gameheader()
         print("\nThe number to beat is %s" % beat_number)
@@ -101,7 +106,10 @@ def game_store(coins):
         print("Chance to double roll: %s percent" % power_ups["Chance to multiply"])
         print("\nYou have %s coins to spend." % coins)
         print("[1] Add 2 to your dice max (10 coins)")
-        print("[2] Add a 10 percent chance to double your dice roll (5 coins)")
+        print("[2] Roll an additional die (20 coins)")
+        if power_ups["Chance to multiply"] < 100:
+            print("[3] Add a 10 percent chance to double your dice roll (4 coins)")
+        
         selection = input("\nSelection: ")
         if selection == '1':
             coins = coins - 10
@@ -114,16 +122,30 @@ def game_store(coins):
                 power_ups["Dice Sides"] = power_ups["Dice Sides"] + 2
                 selection = 0
         if selection == '2':
-            coins = coins - 5
+            coins = coins - 20
             if coins < 2:
                 print("You can't go below 2 coins!")
                 sleep(2)
-                coins = coins + 5
+                coins = coins + 20
+                selection = 0
+            else:
+                power_ups["Number of dice"] = power_ups["Number of dice"] + 1
+                selection = 0
+        if selection == '3':
+            coins = coins - 4
+            if coins < 2:
+                print("You can't go below 2 coins!")
+                sleep(2)
+                coins = coins + 4
                 selection = 0
             else:
                 power_ups["Chance to multiply"] = power_ups["Chance to multiply"] + 10
+                if power_ups["Chance to multiply"] > 100:
+                    print("Can't go above 100 percent chance!")
+                    sleep(2)
+                    power_ups["Chance to multiply"] = power_ups["Chance to multiply"] - 10
                 selection = 0
-    return coins, power_ups["Dice Sides"], power_ups["Chance to multiply"]
+    return coins, power_ups["Dice Sides"], power_ups["Chance to multiply"], power_ups["Number of dice"]
         
 
 
@@ -136,7 +158,7 @@ beat_number = 1
 multiplier = 2
 new_coins = 0
 new_round = 0
-power_ups = {"Dice Sides":6, "Chance to multiply":0}
+power_ups = {"Dice Sides":6, "Chance to multiply":0, "Number of dice":1}
 multiply_by = 1
 
 while startgame != 'q':
@@ -151,16 +173,18 @@ while startgame != 'q':
     # Sets base value for start of run and begins loop
     if startgame == '1':
         while coins > 0:
-            if 1 == round_number%2:
-                # Every 2 rounds, adds 1 to beat number
+            if 1 == round_number%3:
+                # Every 3 rounds, adds 1 to beat number
                 beat_number += 1
             if 0 == round_number%4:
-                # Enters the store and adds 1 to multiplier every 3 rounds
+                # Enters the store and adds 1 to multiplier every 4 rounds
                 multiplier += 1
-                coins , power_ups["Dice Sides"], power_ups["Chance to multiply"] = game_store(coins)
+                coins , power_ups["Dice Sides"], power_ups["Chance to multiply"], power_ups["Number of dice"] = game_store(coins)
             coins, round_number = next_round(coins, round_number)
         print("You ran out of coins!")
         print("\nYou made it %s rounds." % round_number)
+        sleep(5)
+        exit()
 
     else:
         print("Please enter [1] or [q]")
